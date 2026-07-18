@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actualités du Pays de Limours</title>
+<style>
+    :root {
+        color-scheme: light;
+    }
+    body {
+        font-family: Verdana, Geneva, sans-serif;
+        background: #f6f6ef;
+        color: #000;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #ff6600;
+        padding: 10px 14px;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    header h1 {
+        font-size: 15px;
+        margin: 0;
+        color: #000;
+    }
+    header a.ccpl-link {
+        font-size: 12px;
+        color: #000;
+    }
+    main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 12px 14px;
+    }
+    ol.news-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        counter-reset: item;
+    }
+    ol.news-list li {
+        counter-increment: item;
+        padding: 6px 0;
+        font-size: 13px;
+        border-bottom: 1px solid #ebebeb;
+    }
+    ol.news-list li::before {
+        content: counter(item) ". ";
+        color: #828282;
+        display: inline-block;
+        width: 26px;
+    }
+    ol.news-list a.title {
+        color: #000;
+        text-decoration: none;
+    }
+    ol.news-list a.title:visited {
+        color: #828282;
+    }
+    ol.news-list a.title:hover {
+        text-decoration: underline;
+    }
+    .meta {
+        color: #828282;
+        font-size: 11px;
+        margin-left: 26px;
+    }
+    footer {
+        text-align: center;
+        color: #828282;
+        font-size: 11px;
+        padding: 20px 14px;
+    }
+    .empty-state {
+        color: #828282;
+        font-size: 13px;
+        padding: 20px 0;
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>Actualités du Pays de Limours</h1>
+    <a class="ccpl-link" href="https://www.cc-paysdelimours.fr/" target="_blank" rel="noopener">Site de la CCPL &rarr;</a>
+</header>
+<main>
+    <ol class="news-list" id="news-list"></ol>
+    <p class="empty-state" id="empty-state" hidden>Aucune actualité pour le moment.</p>
+</main>
+<footer id="footer">Chargement...</footer>
+
+<script>
+function ccplTimeAgo(isoDate) {
+    const then = new Date(isoDate).getTime();
+    const now = Date.now();
+    const diffSeconds = Math.max(0, Math.floor((now - then) / 1000));
+    const diffDays = Math.floor(diffSeconds / 86400);
+    if (diffDays === 0) return "aujourd'hui";
+    if (diffDays === 1) return "il y a 1 jour";
+    return `il y a ${diffDays} jours`;
+}
+
+function ccplFormatGeneratedAt(isoDate) {
+    if (!isoDate) return "jamais encore mis à jour";
+    const d = new Date(isoDate);
+    return d.toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+}
+
+async function ccplLoadNews() {
+    const listEl = document.getElementById('news-list');
+    const emptyEl = document.getElementById('empty-state');
+    const footerEl = document.getElementById('footer');
+
+    try {
+        const response = await fetch('data/ccpl_news.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const articles = Array.isArray(data.articles) ? data.articles : [];
+
+        if (articles.length === 0) {
+            emptyEl.hidden = false;
+        } else {
+            for (const article of articles) {
+                if (!/^https?:\/\//i.test(article.url)) continue;
+
+                const li = document.createElement('li');
+
+                const link = document.createElement('a');
+                link.className = 'title';
+                link.href = article.url;
+                link.target = '_blank';
+                link.rel = 'noopener';
+                link.textContent = article.title;
+                li.appendChild(link);
+
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+                meta.textContent = `${article.commune} — ${ccplTimeAgo(article.published)}`;
+                li.appendChild(meta);
+
+                listEl.appendChild(li);
+            }
+        }
+
+        footerEl.textContent = `Mis à jour automatiquement chaque jour — dernière collecte : ${ccplFormatGeneratedAt(data.generated_at)}`;
+    } catch (err) {
+        footerEl.textContent = "Impossible de charger les actualités pour le moment.";
+        emptyEl.hidden = false;
+        emptyEl.textContent = "Erreur de chargement — réessayez plus tard.";
+    }
+}
+
+ccplLoadNews();
+</script>
+</body>
+</html>
