@@ -6,12 +6,12 @@ Agrégateur d'actualités municipales pour les communes de la **Communauté de C
 
 ## Pourquoi
 
-Suivre les actualités de 13 communes voisines nécessitait de visiter chaque site municipal séparément. Cette page les rassemble en une seule vue, triée par date, avec un filtre par commune.
+Suivre les actualités de 14 communes voisines nécessitait de visiter chaque site municipal séparément. Cette page les rassemble en une seule vue, triée par date, avec un filtre par commune.
 
 ## Fonctionnement
 
-- **`api/ccpl_news_cron.php`** — script PHP exécuté quotidiennement par une tâche planifiée (cron). Il récupère les actualités de chaque commune :
-  - par flux RSS quand il existe (7 communes),
+- **`api/ccpl_news_cron.php`** — script PHP exécuté toutes les heures par une tâche planifiée (cron). Il récupère les actualités de chaque commune :
+  - par flux RSS quand il existe (8 communes),
   - par scraping HTML (DOMDocument/XPath) sinon (6 communes, sélecteurs adaptés au CMS de chaque site).
 
   Il résout les dates manquantes, déduplique par URL, ne conserve qu'une fenêtre glissante de 30 jours, puis écrit le résultat dans `data/ccpl_news.json`.
@@ -19,9 +19,9 @@ Suivre les actualités de 13 communes voisines nécessitait de visiter chaque si
 
 ## Communes couvertes
 
-Angervilliers, Boullay-les-Troux, Briis-sous-Forges, CCPL, Fontenay-lès-Briis, Forges-les-Bains, Les Molières, Limours, Pecqueuse, Saint-Jean-de-Beauregard, Saint-Maurice-Montcouronne, Vaugrigneuse.
+Angervilliers, Boullay-les-Troux, Briis-sous-Forges, CCPL, Courson-Monteloup, Fontenay-lès-Briis, Forges-les-Bains, Les Molières, Limours, Pecqueuse, Saint-Jean-de-Beauregard, Saint-Maurice-Montcouronne, Vaugrigneuse.
 
-Courson-Monteloup n'est volontairement pas incluse (déjà suivie directement). Janvry n'a pas de page d'actualités structurée exploitable.
+Janvry n'a pas de page d'actualités structurée exploitable.
 
 ## Déploiement
 
