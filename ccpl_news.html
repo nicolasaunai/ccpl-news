@@ -81,6 +81,55 @@
         font-size: 13px;
         padding: 20px 0;
     }
+    .commune-filter {
+        margin: 0 0 12px;
+        font-size: 12px;
+    }
+    .commune-filter-toggle {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 4px 8px;
+        font-size: 12px;
+        font-family: inherit;
+        color: #000;
+        cursor: pointer;
+    }
+    .commune-filter-list {
+        display: none;
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        border-radius: 4px;
+    }
+    .commune-filter-list.is-open {
+        display: block;
+    }
+    .commune-filter-list label {
+        display: block;
+        padding: 2px 0;
+        cursor: pointer;
+    }
+    .commune-filter-list input {
+        margin-right: 6px;
+    }
+    @media (min-width: 1250px) {
+        .commune-filter {
+            position: fixed;
+            left: max(12px, calc(50% - 610px));
+            top: 90px;
+            width: 190px;
+        }
+        .commune-filter-toggle {
+            display: none;
+        }
+        .commune-filter-list {
+            display: block !important;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    }
 </style>
 </head>
 <body>
@@ -89,6 +138,10 @@
     <a class="ccpl-link" href="https://www.cc-paysdelimours.fr/" target="_blank" rel="noopener">Site de la CCPL &rarr;</a>
 </header>
 <main>
+    <aside class="commune-filter" id="commune-filter" hidden>
+        <button type="button" class="commune-filter-toggle" id="commune-filter-toggle" aria-expanded="false">Filtrer les communes &#9662;</button>
+        <div class="commune-filter-list" id="commune-filter-list"></div>
+    </aside>
     <ol class="news-list" id="news-list"></ol>
     <p class="empty-state" id="empty-state" hidden>Aucune actualité pour le moment.</p>
 </main>
@@ -111,6 +164,54 @@ function ccplFormatGeneratedAt(isoDate) {
     return d.toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
 }
 
+function ccplBuildCommuneFilter(communes) {
+    const filterEl = document.getElementById('commune-filter');
+    const toggleEl = document.getElementById('commune-filter-toggle');
+    const listEl = document.getElementById('commune-filter-list');
+
+    if (communes.length === 0) return;
+    filterEl.hidden = false;
+
+    const sorted = [...communes].sort((a, b) => a.localeCompare(b, 'fr'));
+    for (const commune of sorted) {
+        const label = document.createElement('label');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = true;
+        input.value = commune;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(commune));
+        listEl.appendChild(label);
+    }
+
+    toggleEl.addEventListener('click', () => {
+        const isOpen = listEl.classList.toggle('is-open');
+        toggleEl.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    listEl.addEventListener('change', ccplApplyCommuneFilter);
+}
+
+function ccplApplyCommuneFilter() {
+    const listEl = document.getElementById('news-list');
+    const emptyEl = document.getElementById('empty-state');
+    const checked = new Set(
+        [...document.querySelectorAll('#commune-filter-list input:checked')].map(input => input.value)
+    );
+
+    let visibleCount = 0;
+    for (const li of listEl.children) {
+        const show = checked.has(li.dataset.commune);
+        li.hidden = !show;
+        if (show) visibleCount++;
+    }
+
+    if (listEl.children.length > 0) {
+        emptyEl.hidden = visibleCount > 0;
+        emptyEl.textContent = "Aucune actualité pour les communes sélectionnées.";
+    }
+}
+
 async function ccplLoadNews() {
     const listEl = document.getElementById('news-list');
     const emptyEl = document.getElementById('empty-state');
@@ -125,10 +226,14 @@ async function ccplLoadNews() {
         if (articles.length === 0) {
             emptyEl.hidden = false;
         } else {
+            const communes = new Set();
+
             for (const article of articles) {
                 if (!/^https?:\/\//i.test(article.url)) continue;
 
                 const li = document.createElement('li');
+                li.dataset.commune = article.commune;
+                communes.add(article.commune);
 
                 const link = document.createElement('a');
                 link.className = 'title';
@@ -145,6 +250,8 @@ async function ccplLoadNews() {
 
                 listEl.appendChild(li);
             }
+
+            ccplBuildCommuneFilter([...communes]);
         }
 
         footerEl.textContent = `Mis à jour automatiquement chaque jour — dernière collecte : ${ccplFormatGeneratedAt(data.generated_at)}`;
