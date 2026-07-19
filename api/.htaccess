@@ -1,0 +1,13 @@
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+    <Files "*.log">
+        Require all denied
+    </Files>
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <Files "*.log">
+        Order allow,deny
+        Deny from all
+    </Files>
+</IfModule>

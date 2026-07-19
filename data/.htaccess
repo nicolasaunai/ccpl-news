@@ -1,0 +1,15 @@
+# Interdit tout accès HTTP direct aux fichiers de données, sauf ccpl_news.json (lu directement par le JS de la page publique)
+Order Deny,Allow
+Deny from all
+
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+
+<Files "ccpl_news.json">
+  Order Allow,Deny
+  Allow from all
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</Files>

@@ -1,0 +1,13 @@
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temporary files
+*.tmp
+~*
+*.swp
+*.swo
+*~
