@@ -469,6 +469,7 @@ function ccpl_news_resolve_missing_dates(array $incoming, array $existing): arra
 const CCPL_NEWS_FEEDS = [
     'Boullay-les-Troux' => 'https://www.boullay-les-troux.fr/fr/rss',
     'Briis-sous-Forges' => 'https://www.briis.fr/category/actualite/feed/',
+    'Courson-Monteloup' => 'https://courson-monteloup.fr/category/actualites/feed/',
     'Fontenay-lès-Briis' => 'https://www.fontenay-les-briis.fr/category/actualites/feed/',
     'Forges-les-Bains' => 'https://www.forges-les-bains.fr/feed/?post_type=post',
     'Les Molières' => 'https://www.lesmolieres.fr/feed/',
