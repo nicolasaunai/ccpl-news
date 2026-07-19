@@ -10,7 +10,7 @@ Suivre les actualités de 14 communes voisines nécessitait de visiter chaque si
 
 ## Fonctionnement
 
-- **`api/ccpl_news_cron.php`** — script PHP exécuté toutes les heures par une tâche planifiée (cron). Il récupère les actualités de chaque commune :
+- **`api/ccpl_news_cron.php`** — script PHP exécuté par une tâche planifiée (cron). Il récupère les actualités de chaque commune :
   - par flux RSS quand il existe (8 communes),
   - par scraping HTML (DOMDocument/XPath) sinon (6 communes, sélecteurs adaptés au CMS de chaque site).
 
