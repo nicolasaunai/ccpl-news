@@ -114,6 +114,22 @@
     .commune-filter-list input {
         margin-right: 6px;
     }
+    .commune-filter-actions {
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #ebebeb;
+    }
+    .commune-filter-actions button {
+        background: none;
+        border: none;
+        padding: 0;
+        margin-right: 10px;
+        font-size: 12px;
+        font-family: inherit;
+        color: #ff6600;
+        text-decoration: underline;
+        cursor: pointer;
+    }
     @media (min-width: 1250px) {
         .commune-filter {
             position: fixed;
@@ -172,6 +188,23 @@ function ccplBuildCommuneFilter(communes) {
     if (communes.length === 0) return;
     filterEl.hidden = false;
 
+    const actions = document.createElement('div');
+    actions.className = 'commune-filter-actions';
+
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.textContent = 'Toutes';
+    allBtn.addEventListener('click', () => ccplSetAllCommunes(true));
+    actions.appendChild(allBtn);
+
+    const noneBtn = document.createElement('button');
+    noneBtn.type = 'button';
+    noneBtn.textContent = 'Aucune';
+    noneBtn.addEventListener('click', () => ccplSetAllCommunes(false));
+    actions.appendChild(noneBtn);
+
+    listEl.appendChild(actions);
+
     const sorted = [...communes].sort((a, b) => a.localeCompare(b, 'fr'));
     for (const commune of sorted) {
         const label = document.createElement('label');
@@ -190,6 +223,13 @@ function ccplBuildCommuneFilter(communes) {
     });
 
     listEl.addEventListener('change', ccplApplyCommuneFilter);
+}
+
+function ccplSetAllCommunes(checked) {
+    for (const input of document.querySelectorAll('#commune-filter-list input')) {
+        input.checked = checked;
+    }
+    ccplApplyCommuneFilter();
 }
 
 function ccplApplyCommuneFilter() {
